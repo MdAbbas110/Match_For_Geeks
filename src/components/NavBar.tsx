@@ -1,13 +1,35 @@
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../redux/store";
+import { Link, useNavigate } from "react-router-dom";
+import { api } from "../lib/axios";
+import { removeUser } from "../redux/userSlice";
+import { useQueryClient } from "@tanstack/react-query";
 
-export const NavBar = () => {
+const NavBar = () => {
   const user = useSelector((store: RootState) => store.user);
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const queryClient = useQueryClient();
+
+  const handleLogout = async () => {
+    try {
+      await api.post("/logout");
+
+      queryClient.removeQueries({ queryKey: ["user"] });
+      dispatch(removeUser());
+      navigate("/login");
+    } catch (err) {
+      console.error(err);
+      navigate("/login");
+    }
+  };
 
   return (
     <div className="navbar bg-base-200 shadow-sm ">
       <div className="flex-1">
-        <a className="btn btn-ghost text-xl">Match For Geeks</a>
+        <Link to={"/"} className="btn btn-ghost text-xl">
+          Match For Geeks
+        </Link>
       </div>
       <div className="flex gap-2 mx-6 items-center">
         {user && <p>{user.firstName}</p>}
@@ -33,16 +55,16 @@ export const NavBar = () => {
             className="menu menu-sm dropdown-content bg-base-100 rounded-box z-1 mt-3 w-52 p-2 shadow"
           >
             <li>
-              <a className="justify-between">
+              <Link to={"/profile"} className="justify-between">
                 Profile
                 <span className="badge">New</span>
-              </a>
+              </Link>
             </li>
             <li>
               <a>Settings</a>
             </li>
             <li>
-              <a>Logout</a>
+              <button onClick={handleLogout}>Logout</button>
             </li>
           </ul>
         </div>
@@ -50,3 +72,5 @@ export const NavBar = () => {
     </div>
   );
 };
+
+export default NavBar;

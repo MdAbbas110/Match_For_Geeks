@@ -1,23 +1,22 @@
-import { useSelector } from "react-redux";
-import { Link, Outlet } from "react-router-dom";
+import { Outlet } from "react-router-dom";
 
 import FooterSet from "./FooterSet";
-import { NavBar } from "./NavBar";
+import NavBar from "./NavBar";
 import { useUserProfile } from "../hooks/useUserProfile";
 
 const Body = () => {
-  const { data: user, isLoading, error } = useUserProfile();
-  const userData = useSelector((store: any) => store.user);
+  const { isLoading } = useUserProfile();
 
   if (isLoading) return <p>Loading user profile...</p>;
 
   return (
-    <>
+    <div className="min-h-screen flex flex-col">
       <NavBar />
-      {JSON.stringify(user)}
-      <Outlet />
+      <main className="flex-1">
+        <Outlet />
+      </main>
       <FooterSet />
-    </>
+    </div>
   );
 };
 

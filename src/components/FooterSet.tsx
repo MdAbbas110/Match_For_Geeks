@@ -1,12 +1,6 @@
 const FooterSet = () => {
   return (
-    <footer className="footer footer-horizontal fixed bottom-0 footer-center bg-base-200 text-base-content rounded p-10">
-      <nav className="grid grid-flow-col gap-4">
-        <a className="link link-hover">About us</a>
-        <a className="link link-hover">Contact</a>
-        <a className="link link-hover">Jobs</a>
-        <a className="link link-hover">Press kit</a>
-      </nav>
+    <footer className="footer footer-center p-4 bg-base-200 text-base-content">
       <nav>
         <div className="grid grid-flow-col gap-4">
           <a>

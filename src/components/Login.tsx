@@ -1,10 +1,12 @@
 import { z } from "zod";
-import axios from "axios";
-import { useForm, SubmitHandler } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useMutation } from "@tanstack/react-query";
+import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { BASE_URL } from "../utils/constants";
+import { useForm, SubmitHandler } from "react-hook-form";
+
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+
+import { loginUser } from "../services/auth";
 
 const loginFormSchema = z.object({
   email: z.string().email("Invalid Email ID"),
@@ -15,6 +17,14 @@ type LoginFormInput = z.infer<typeof loginFormSchema>;
 
 const Login = () => {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
+
+  useEffect(() => {
+    const user = queryClient.getQueryData(["user"]);
+    if (user) {
+      navigate("/");
+    }
+  }, [queryClient, navigate]);
 
   const {
     register,
@@ -29,30 +39,21 @@ const Login = () => {
     resolver: zodResolver(loginFormSchema),
   });
 
-  const mutation = useMutation({
-    mutationFn: async (data: LoginFormInput) => {
-      const response = await axios.post(
-        `${BASE_URL}/login`,
-        {
-          emailId: data.email,
-          password: data.password,
-        },
-        { withCredentials: true }
-      );
-      return response.data;
-    },
+  const { mutate, isPending } = useMutation({
+    mutationFn: loginUser,
     onSuccess: (data) => {
+      console.log("Login Success Data:", data);
       if (data.success) {
+        queryClient.invalidateQueries({ queryKey: ["user"] });
         navigate("/");
       } else {
-        // If API returns success: false, show error message
         setError("root", {
           type: "manual",
           message: data.message || "Login failed",
         });
       }
     },
-    onError: (error: any) => {
+    onError: () => {
       setError("root", {
         type: "manual",
         message: "Something went wrong, please try again.",
@@ -61,7 +62,7 @@ const Login = () => {
   });
 
   const onSubmit: SubmitHandler<LoginFormInput> = (data) => {
-    mutation.mutate(data);
+    mutate({ emailId: data.email, password: data.password });
   };
 
   return (
@@ -77,7 +78,6 @@ const Login = () => {
               Email ID
             </label>
             <label className="input validator my-2">
-              {/* SVG omitted for brevity */}
               <input
                 {...register("email", {
                   required: "Email is required",
@@ -92,7 +92,6 @@ const Login = () => {
 
             <label htmlFor="password">Password</label>
             <label className="input validator my-2">
-              {/* SVG omitted for brevity */}
               <input
                 type="password"
                 placeholder="Password"
@@ -113,9 +112,9 @@ const Login = () => {
             <div className="mt-6">
               <button
                 className="btn btn-primary btn-block"
-                disabled={mutation.isLoading}
+                disabled={isPending}
               >
-                {mutation.isLoading ? "Signing In..." : "Sign In"}
+                {isPending ? "Signing In..." : "Sign In"}
               </button>
             </div>
           </form>
