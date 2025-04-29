@@ -6,16 +6,18 @@ export interface UserType {
   emailId: string;
   photoUrl: string;
   age: string;
+  about?: string;
+  gender?: string;
 }
 
 const userSlice = createSlice({
   name: "user",
   initialState: null as UserType | null,
   reducers: {
-    addUser: (state, action: PayloadAction<UserType>) => {
+    addUser: (_, action: PayloadAction<UserType>) => {
       return action.payload;
     },
-    removeUser: (state, action) => {
+    removeUser: () => {
       return null;
     },
   },
