@@ -3,10 +3,10 @@ import { useForm, SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useSelector } from "react-redux";
-import { RootState } from "../redux/store";
-import { api } from "../lib/axios";
-import UserCard from "./UserCard";
-import { Profile } from "./Feed";
+import { RootState } from "../../redux/store";
+import { api } from "../../lib/axios";
+import UserCard from "../UserCard";
+import { Profile } from "../Feed";
 
 const profileFormSchema = z.object({
   firstName: z.string().min(2, "First name must be at least 2 characters"),
@@ -66,7 +66,6 @@ const EditProfile = () => {
   });
 
   const onSubmit: SubmitHandler<ProfileFormInput> = (data) => {
-    console.log(data);
     mutate(data);
   };
 
@@ -196,7 +195,7 @@ const EditProfile = () => {
           </div>
 
           {user && (
-            <div className="card w-96  bg-base-100 shadow-sm mt-12">
+            <div className="card w-96 bg-base-100 shadow-sm mt-12">
               <h2 className="text-xl font-bold underline mb-4">Card Preview</h2>
               <UserCard
                 profileData={

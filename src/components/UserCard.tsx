@@ -1,11 +1,28 @@
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Profile } from "./Feed";
+import { api } from "../lib/axios";
 
 interface UserCardProps {
   profileData: Profile;
 }
 
 const UserCard = ({ profileData }: UserCardProps) => {
-  const { firstName, lastName, photoUrl, about, age, gender } = profileData;
+  const { _id, firstName, lastName, photoUrl, about, age, gender } =
+    profileData;
+  const queryClient = useQueryClient();
+
+  const { mutate: handleProfileAction } = useMutation({
+    mutationFn: async ({ _id, action }: { _id: string; action: string }) => {
+      const res = await api.post(`/request/send/${action}/${_id}`);
+      return res.data;
+    },
+    onSuccess() {
+      queryClient.invalidateQueries({ queryKey: ["feed"] });
+    },
+    onError: () => {
+      console.log("Failed to perform action request");
+    },
+  });
 
   return (
     <div className="card bg-base-100 w-96 shadow-xl hover:shadow-2xl transition-shadow duration-300">
@@ -31,7 +48,10 @@ const UserCard = ({ profileData }: UserCardProps) => {
         <p className="text-base-content/80">{about}</p>
         <div className="card-actions justify-end mt-4">
           <div className="flex gap-4">
-            <button className="btn btn-circle btn-outline btn-error">
+            <button
+              onClick={() => handleProfileAction({ _id, action: "ignored" })}
+              className="btn btn-circle btn-outline btn-error"
+            >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 className="h-6 w-6"
@@ -47,7 +67,10 @@ const UserCard = ({ profileData }: UserCardProps) => {
                 />
               </svg>
             </button>
-            <button className="btn btn-circle btn-primary">
+            <button
+              onClick={() => handleProfileAction({ _id, action: "interested" })}
+              className="btn btn-circle btn-primary"
+            >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 className="h-6 w-6"

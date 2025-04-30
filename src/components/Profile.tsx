@@ -1,5 +1,4 @@
-import React from "react";
-import EditProfile from "./EditProfile";
+import EditProfile from "./auth/EditProfile";
 
 const Profile = () => {
   return <EditProfile />;
