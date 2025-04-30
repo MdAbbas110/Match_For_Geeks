@@ -6,7 +6,6 @@ const feedSlice = createSlice({
   initialState: [] as FeedApiResponse | [],
   reducers: {
     addFeed: (_, action) => action.payload,
-
     removeFeed: () => {
       return [];
     },

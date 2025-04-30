@@ -28,7 +28,7 @@ export const useUserProfile = () => {
 
   useEffect(() => {
     if (error && axios.isAxiosError(error) && error.response?.status === 401) {
-      navigate("/login");
+      // navigate("/signup");
     } else if (error) {
       console.error("Failed to fetch user profile:", error);
     }

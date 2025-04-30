@@ -1,21 +1,35 @@
-import { BrowserRouter, Route, Routes } from "react-router-dom";
-
-import Body from "./components/Body.js";
-import Login from "./components/Login.js";
-import Profile from "./components/Profile.js";
-import Feed from "./components/Feed.js";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import AuthPage from "./components/auth/AuthPage";
+import ProtectedRoute from "./components/auth/ProtectedRoute";
+import Profile from "./components/Profile";
+import Connections from "./components/Connections";
+import RequestReceived from "./components/RequestReceived";
+import Messages from "./components/Messages";
+import Body from "./components/Body";
+import Feed from "./components/Feed";
+import { AuthProvider } from "./context/AuthContext";
 
 function App() {
   return (
-    <BrowserRouter basename="/">
-      <Routes>
-        <Route path="/" element={<Body />}>
-          <Route path="/" element={<Feed />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/profile" element={<Profile />} />
-        </Route>
-      </Routes>
-    </BrowserRouter>
+    <AuthProvider>
+      <Router>
+        <Routes>
+          {/* Public route - Marketing + Auth */}
+          <Route path="/" element={<AuthPage />} />
+
+          {/* Protected routes - All under Body layout */}
+          <Route element={<ProtectedRoute />}>
+            <Route element={<Body />}>
+              <Route path="/feed" element={<Feed />} />
+              <Route path="/profile" element={<Profile />} />
+              <Route path="/connections" element={<Connections />} />
+              <Route path="/requests" element={<RequestReceived />} />
+              <Route path="/messages" element={<Messages />} />
+            </Route>
+          </Route>
+        </Routes>
+      </Router>
+    </AuthProvider>
   );
 }
 
