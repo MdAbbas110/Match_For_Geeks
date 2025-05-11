@@ -2,7 +2,6 @@
 @plugin "daisyui" {
   themes: valentine --default, valentine --prefersdark;
 }
-@import "tailwindcss/preflight";
 @tailwind utilities;
 
 @keyframes fadeIn {

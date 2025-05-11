@@ -1,9 +1,9 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { ConnectionsResponse } from "../components/Connections";
+// import { ConnectionsResponse } from "../components/Connections";
 
 export const connectionSlice = createSlice({
-  name: "connection",
-  initialState: null as ConnectionsResponse | null,
+  name: "connections",
+  initialState: null,
 
   reducers: {
     addConnectionList: (_, action) => {

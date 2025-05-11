@@ -24,7 +24,7 @@ function App() {
               <Route path="/profile" element={<Profile />} />
               <Route path="/connections" element={<Connections />} />
               <Route path="/requests" element={<RequestReceived />} />
-              <Route path="/messages" element={<Messages />} />
+              <Route path="/message/:targetUserId" element={<Messages />} />
             </Route>
           </Route>
         </Routes>
