@@ -12,7 +12,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const user = useSelector((store: RootState) => store.user);
 
   return (
-    <AuthContext.Provider value={{ user }}>{children}</AuthContext.Provider>
+    <AuthContext.Provider value={{ user }}>{children}</AuthContext.Provider> //h
   );
 }
 
