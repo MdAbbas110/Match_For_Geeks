@@ -1,7 +1,7 @@
-import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
-import { createSocketConnection } from "../lib/socket";
-import { useQueryClient } from "@tanstack/react-query";
+import { useEffect, useState } from 'react';
+import { useParams } from 'react-router-dom';
+import { createSocketConnection } from '../lib/socket';
+import { useQueryClient } from '@tanstack/react-query';
 
 const Messages = () => {
   const { targetUserId } = useParams();
@@ -10,11 +10,12 @@ const Messages = () => {
   const currentUser = queyClient.getQueryData<{
     _id: string;
     firstName: string;
-  }>(["user"]);
+  }>(['user']);
 
-  const [messages, setMessages] = useState([]);
+  type Message = { firstName: string; text: string };
+  const [messages, setMessages] = useState<Message[]>([]);
 
-  const [newMessage, setNewMessage] = useState("");
+  const [newMessage, setNewMessage] = useState('');
 
   if (!currentUser) return <p>No user found</p>;
   const { _id: userId } = currentUser;
@@ -22,14 +23,14 @@ const Messages = () => {
   // as soon as the page loads connect to the server and get the socket object
   useEffect(() => {
     const socket = createSocketConnection();
-    socket.emit("joinChat", {
+    socket.emit('joinChat', {
       firstName: currentUser.firstName,
       userId,
       targetUserId,
     });
 
     //socket.on will help you to listen from the backend coming socket.
-    socket.on("messageReceived", ({ firstName, text }) => {
+    socket.on('messageReceived', ({ firstName, text }) => {
       console.log(firstName + text);
       setMessages((messages) => [...messages, { firstName, text }]);
     });
@@ -41,10 +42,10 @@ const Messages = () => {
 
   const sendMessage = (e: any) => {
     e.preventDefault();
-    setNewMessage("");
+    setNewMessage('');
     const socket = createSocketConnection();
 
-    socket.emit("sendMessage", {
+    socket.emit('sendMessage', {
       firstName: currentUser.firstName,
       userId,
       targetUserId,
@@ -55,7 +56,7 @@ const Messages = () => {
   return (
     <div className="w-3/4 mx-auto border rounded-xl border-pink-600 m-5 h-[70vh] flex flex-col">
       <h1 className="p-4 border-b border-pink-200">
-        {currentUser?.firstName}'s chat{" "}
+        {currentUser?.firstName}'s chat{' '}
       </h1>
       <div className="flex-1 overflow-scroll p-4">
         {messages.map((msg, idx) => (
