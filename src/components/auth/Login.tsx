@@ -1,19 +1,20 @@
-import { z } from "zod";
-import { useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-import { useForm, SubmitHandler } from "react-hook-form";
+import { z } from 'zod';
+import { useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useForm, SubmitHandler } from 'react-hook-form';
 
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 
-import { loginUser } from "../../services/auth";
-import { AxiosError } from "axios";
-import { useDispatch } from "react-redux";
-import { addUser } from "../../redux/userSlice";
+import { loginUser } from '../../services/auth';
+import { AxiosError } from 'axios';
+import { useDispatch } from 'react-redux';
+import { addUser } from '../../redux/userSlice';
+import { api } from '../../lib/axios';
 
 const loginFormSchema = z.object({
-  email: z.string().email("Invalid Email ID"),
-  password: z.string().min(4, "Choose a strong password"),
+  email: z.string().email('Invalid Email ID'),
+  password: z.string().min(4, 'Choose a strong password'),
 });
 
 type LoginFormInput = z.infer<typeof loginFormSchema>;
@@ -22,17 +23,43 @@ interface LoginProps {
   onToggle: () => void;
 }
 
+const guestCredentials = {
+  firstName: 'Guest',
+  lastName: 'User',
+  email: 'guest@example.com',
+  password: 'Guest@123',
+};
+
 const Login = ({ onToggle }: LoginProps) => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const dispatch = useDispatch();
 
   useEffect(() => {
-    const user = queryClient.getQueryData(["user"]);
+    const user = queryClient.getQueryData(['user']);
     if (user) {
-      navigate("/");
+      navigate('/');
     }
   }, [queryClient, navigate]);
+
+  const handleGuestLogin = async () => {
+    try {
+      const response = await api.post('/login', {
+        emailId: guestCredentials.email,
+        password: guestCredentials.password,
+      });
+
+      if (response.data.success) {
+        dispatch(addUser(response.data.data));
+        queryClient.invalidateQueries({ queryKey: ['user'] });
+        navigate('/feed');
+      }
+    } catch (error) {
+      setError('root', {
+        message: 'Guest login failed. Please try again.',
+      });
+    }
+  };
 
   const {
     register,
@@ -41,8 +68,8 @@ const Login = ({ onToggle }: LoginProps) => {
     setError,
   } = useForm<LoginFormInput>({
     defaultValues: {
-      email: "",
-      password: "",
+      email: '',
+      password: '',
     },
     resolver: zodResolver(loginFormSchema),
   });
@@ -52,19 +79,19 @@ const Login = ({ onToggle }: LoginProps) => {
     onSuccess: (data) => {
       if (data.success) {
         dispatch(addUser(data.data));
-        queryClient.invalidateQueries({ queryKey: ["user"] });
-        navigate("/feed");
+        queryClient.invalidateQueries({ queryKey: ['user'] });
+        navigate('/feed');
       } else {
-        setError("root", {
-          type: "manual",
-          message: data.message || "Login failed",
+        setError('root', {
+          type: 'manual',
+          message: data.message || 'Login failed',
         });
       }
     },
     onError: (error: AxiosError<{ message: string }>) => {
       console.log(error);
-      setError("root", {
-        type: "manual",
+      setError('root', {
+        type: 'manual',
         message: error.response?.data?.message,
       });
     },
@@ -88,8 +115,8 @@ const Login = ({ onToggle }: LoginProps) => {
             </label>
             <label className="input validator my-2">
               <input
-                {...register("email", {
-                  required: "Email is required",
+                {...register('email', {
+                  required: 'Email is required',
                 })}
                 type="email"
                 placeholder="mail@site.com"
@@ -104,8 +131,8 @@ const Login = ({ onToggle }: LoginProps) => {
               <input
                 type="password"
                 placeholder="Password"
-                {...register("password", {
-                  required: "Please enter a valid password",
+                {...register('password', {
+                  required: 'Please enter a valid password',
                 })}
               />
             </label>
@@ -123,12 +150,12 @@ const Login = ({ onToggle }: LoginProps) => {
                 className="btn btn-primary btn-block"
                 disabled={isPending}
               >
-                {isPending ? "Signing In..." : "Sign In"}
+                {isPending ? 'Signing In...' : 'Sign In'}
               </button>
             </div>
           </form>
           <p>
-            Don't have an account?{" "}
+            Don't have an account?{' '}
             <button
               onClick={onToggle}
               className="text-blue-500 hover:underline"
@@ -136,6 +163,13 @@ const Login = ({ onToggle }: LoginProps) => {
               Sign up
             </button>
           </p>
+          <button
+            type="button"
+            onClick={handleGuestLogin}
+            className="btn btn-secondary w-full my-4 "
+          >
+            Continue as Guest
+          </button>
         </div>
       </div>
     </div>

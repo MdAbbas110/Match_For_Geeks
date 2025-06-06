@@ -1,8 +1,8 @@
-import { Outlet } from "react-router-dom";
+import { Outlet } from 'react-router-dom';
 
-import FooterSet from "./FooterSet";
-import NavBar from "./NavBar";
-import { useUserProfile } from "../hooks/useUserProfile";
+import FooterSet from './FooterSet';
+import NavBar from './NavBar';
+import { useUserProfile } from '../hooks/useUserProfile';
 
 const Body = () => {
   const { isLoading } = useUserProfile();
@@ -12,7 +12,7 @@ const Body = () => {
   return (
     <div className="min-h-screen flex flex-col">
       <NavBar />
-      <main className="flex-1">
+      <main className="flex-1 mt-18">
         <Outlet />
       </main>
       <FooterSet />

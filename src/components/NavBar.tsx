@@ -1,56 +1,90 @@
-import { useDispatch, useSelector } from "react-redux";
-import { RootState } from "../redux/store";
-import { Link, useNavigate } from "react-router-dom";
-import { api } from "../lib/axios";
-import { removeUser } from "../redux/userSlice";
-import { useQueryClient } from "@tanstack/react-query";
+import { useDispatch, useSelector } from 'react-redux';
+import { RootState } from '../redux/store';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
+import { api } from '../lib/axios';
+import { removeUser } from '../redux/userSlice';
+import { useQueryClient } from '@tanstack/react-query';
 
 const NavBar = () => {
   const user = useSelector((store: RootState) => store.user);
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const location = useLocation();
   const queryClient = useQueryClient();
 
   const handleLogout = async () => {
     try {
-      await api.post("/logout");
-      queryClient.removeQueries({ queryKey: ["user"] });
+      await api.post('/logout');
+      queryClient.removeQueries({ queryKey: ['user'] });
       dispatch(removeUser());
-      navigate("/login");
+      navigate('/');
     } catch (err) {
       console.error(err);
-      // navigate("/signup");
     }
   };
 
+  const navLinks = [
+    {
+      path: '/feed',
+      label: 'Feed',
+      icon: 'M2.25 12l8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25',
+    },
+    {
+      path: '/connections',
+      label: 'Connections',
+      icon: 'M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z',
+    },
+    {
+      path: '/requests',
+      label: 'Requests',
+      icon: 'M19 7.5v3m0 0v3m0-3h3m-3 0h-3m-2.25-4.125a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zM4 19.235v-.11a6.375 6.375 0 0112.75 0v.109A12.318 12.318 0 0110.374 21c-2.331 0-4.512-.645-6.374-1.766z',
+    },
+  ];
+
   return (
-    <div className="bg-base-200">
-      <div className="navbar max-w-5xl mx-auto rounded-full bg-base-100 shadow-lg my-4 px-6">
+    <nav className="fixed top-4 left-1/2 transform -translate-x-1/2 w-full max-w-5xl z-50">
+      <div className="navbar bg-base-100 shadow-lg rounded-full px-6 py-2">
         <div className="navbar-start">
-          <Link to="/" className="btn btn-ghost normal-case text-xl">
-            <span className="bg-clip-text text-transparent bg-gradient-to-r from-primary to-secondary font-bold">
-              Match For Geeks
-            </span>
+          <Link to={user ? '/feed' : '/'} className="btn btn-ghost text-xl">
+            M.F.G
           </Link>
         </div>
 
+        {/* Center navigation - Only show for authenticated users */}
         <div className="navbar-center hidden lg:flex">
           {user && (
             <ul className="menu menu-horizontal px-1 gap-2">
-              <li>
-                <Link to="/connections" className="rounded-full">
-                  Connections
-                </Link>
-              </li>
-              <li>
-                <Link to="/requests" className="rounded-full">
-                  Requests
-                </Link>
-              </li>
+              {navLinks.map((link) => (
+                <li key={link.path}>
+                  <Link
+                    to={link.path}
+                    className={`btn btn-ghost btn-sm rounded-full ${
+                      location.pathname === link.path ? 'btn-active' : ''
+                    }`}
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      strokeWidth={1.5}
+                      stroke="currentColor"
+                      className="w-4 h-4"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d={link.icon}
+                      />
+                    </svg>
+                    {link.label}
+                  </Link>
+                </li>
+              ))}
             </ul>
           )}
         </div>
 
+        {/* Right side - Authentication buttons or user menu */}
         <div className="navbar-end">
           {user ? (
             <div className="flex items-center gap-4">
@@ -68,7 +102,7 @@ const NavBar = () => {
                       alt="Profile"
                       src={
                         user.photoUrl ||
-                        "https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp"
+                        'https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp'
                       }
                     />
                   </div>
@@ -94,7 +128,6 @@ const NavBar = () => {
                         />
                       </svg>
                       Profile
-                      <span className="badge badge-sm badge-primary">New</span>
                     </Link>
                   </li>
                   <li>
@@ -124,20 +157,17 @@ const NavBar = () => {
             </div>
           ) : (
             <div className="flex gap-2">
-              <Link to="/login" className="btn btn-ghost btn-sm rounded-full">
-                Login In
+              <Link to="/auth" className="btn btn-ghost btn-sm rounded-full">
+                Login
               </Link>
-              <a
-                href="#SingUpFrom"
-                className="btn btn-primary btn-sm rounded-full"
-              >
+              <Link to="/auth" className="btn btn-primary btn-sm rounded-full">
                 Join Now
-              </a>
+              </Link>
             </div>
           )}
         </div>
       </div>
-    </div>
+    </nav>
   );
 };
 

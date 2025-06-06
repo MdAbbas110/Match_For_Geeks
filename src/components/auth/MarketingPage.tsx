@@ -1,6 +1,6 @@
 const MarketingPage = () => {
   return (
-    <div className="min-h-screen bg-gradient-to-b from-base-200 to-base-100">
+    <div className="min-h-screen pt-12 bg-gradient-to-b from-base-200 to-base-100">
       {/* Hero Section */}
       <section className="hero py-16">
         <div className="hero-content text-center">

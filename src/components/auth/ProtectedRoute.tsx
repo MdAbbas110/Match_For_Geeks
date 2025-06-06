@@ -1,17 +1,15 @@
-import { Navigate, Outlet } from "react-router-dom";
-import { useSelector } from "react-redux";
-import { RootState } from "../../redux/store";
+import { Navigate, Outlet, useLocation } from 'react-router-dom';
+import { useSelector } from 'react-redux';
+import { RootState } from '../../redux/store';
 
-const ProtectedRoute = () => {
+export const ProtectedRoute = () => {
   const user = useSelector((store: RootState) => store.user);
+  const location = useLocation();
 
-  // If user is not logged in, redirect to root
   if (!user) {
-    return <Navigate to="/" replace />;
+    // Redirect to auth page with the return url
+    return <Navigate to="/auth" state={{ from: location }} replace />;
   }
 
-  // Render child routes
   return <Outlet />;
 };
-
-export default ProtectedRoute;

@@ -1,24 +1,24 @@
-import { zodResolver } from "@hookform/resolvers/zod";
-import { SubmitHandler, useForm } from "react-hook-form";
-import { z } from "zod";
-import { useNavigate } from "react-router-dom";
+import { zodResolver } from '@hookform/resolvers/zod';
+import { SubmitHandler, useForm } from 'react-hook-form';
+import { z } from 'zod';
+import { useNavigate } from 'react-router-dom';
 
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { api } from "../../lib/axios";
-import { AxiosError } from "axios";
-import { useDispatch } from "react-redux";
-import { addUser } from "../../redux/userSlice";
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { api } from '../../lib/axios';
+import { AxiosError } from 'axios';
+import { useDispatch } from 'react-redux';
+import { addUser } from '../../redux/userSlice';
 
 const signupFormSchema = z.object({
-  firstName: z.string().min(3, "First name should be at least 3 characters"),
-  lastName: z.string().min(2, "Last name should be at least 2 characters"),
-  email: z.string().email("Please enter a valid email address"),
+  firstName: z.string().min(3, 'First name should be at least 3 characters'),
+  lastName: z.string().min(2, 'Last name should be at least 2 characters'),
+  email: z.string().email('Please enter a valid email address'),
   password: z
     .string()
-    .min(8, "Password must be at least 8 characters")
-    .regex(/[A-Z]/, "Password must contain at least one uppercase letter")
-    .regex(/[a-z]/, "Password must contain at least one lowercase letter")
-    .regex(/[0-9]/, "Password must contain at least one number"),
+    .min(8, 'Password must be at least 8 characters')
+    .regex(/[A-Z]/, 'Password must contain at least one uppercase letter')
+    .regex(/[a-z]/, 'Password must contain at least one lowercase letter')
+    .regex(/[0-9]/, 'Password must contain at least one number'),
 });
 
 type SignupFormType = z.infer<typeof signupFormSchema>;
@@ -27,10 +27,36 @@ interface SignupProps {
   onToggle: () => void;
 }
 
+const guestCredentials = {
+  firstName: 'Guest',
+  lastName: 'User',
+  email: 'guest@example.com',
+  password: 'Guest@123',
+};
+
 const Signup = ({ onToggle }: SignupProps) => {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
   const dispatch = useDispatch();
+
+  const handleGuestLogin = async () => {
+    try {
+      const response = await api.post('/login', {
+        emailId: guestCredentials.email,
+        password: guestCredentials.password,
+      });
+
+      if (response.data.success) {
+        dispatch(addUser(response.data.data));
+        queryClient.invalidateQueries({ queryKey: ['user'] });
+        navigate('/feed');
+      }
+    } catch (error) {
+      setError('root', {
+        message: 'Guest login failed. Please try again.',
+      });
+    }
+  };
 
   const {
     register,
@@ -39,17 +65,17 @@ const Signup = ({ onToggle }: SignupProps) => {
     handleSubmit,
   } = useForm<SignupFormType>({
     defaultValues: {
-      firstName: "",
-      lastName: "",
-      email: "",
-      password: "",
+      firstName: '',
+      lastName: '',
+      email: '',
+      password: '',
     },
     resolver: zodResolver(signupFormSchema),
   });
 
   const { mutate, status } = useMutation({
     mutationFn: async (data: SignupFormType) => {
-      const res = await api.post("/signup", {
+      const res = await api.post('/signup', {
         firstName: data?.firstName,
         lastName: data.lastName,
         emailId: data.email,
@@ -59,17 +85,17 @@ const Signup = ({ onToggle }: SignupProps) => {
     },
     onSuccess: (data) => {
       dispatch(addUser(data.data));
-      queryClient.invalidateQueries({ queryKey: ["user"] });
-      navigate("/profile");
+      queryClient.invalidateQueries({ queryKey: ['user'] });
+      navigate('/profile');
     },
     onError: (error: AxiosError<{ message: string }>) => {
       if (error.response?.status === 409) {
-        setError("email", {
-          message: "This email is already registered",
+        setError('email', {
+          message: 'This email is already registered',
         });
       } else {
-        setError("root", {
-          message: error.response?.data?.message || "Failed to create account",
+        setError('root', {
+          message: error.response?.data?.message || 'Failed to create account',
         });
       }
     },
@@ -81,12 +107,16 @@ const Signup = ({ onToggle }: SignupProps) => {
 
   return (
     <div>
-      <section id="SingUpFrom" className="py-16 px-4">
+      <section className="py-16 px-4">
         <div className="max-w-md mx-auto bg-base-100 rounded-lg shadow-xl p-8">
           <div className="text-center mb-8">
-            <span className="badge badge-primary badge-lg mb-4">
-              Join the Community
-            </span>
+            <button
+              type="button"
+              onClick={handleGuestLogin}
+              className="btn btn-secondary w-1/2 mb-4"
+            >
+              Continue as Guest
+            </button>
             <h2 className="text-3xl font-bold">Create Your Account</h2>
             <p className="text-base-content/70 mt-2">
               Connect with other tech enthusiasts today
@@ -103,9 +133,9 @@ const Signup = ({ onToggle }: SignupProps) => {
                 id="firstName"
                 placeholder="Enter your first name"
                 className={`input input-bordered w-full ${
-                  errors.firstName ? "input-error" : ""
+                  errors.firstName ? 'input-error' : ''
                 }`}
-                {...register("firstName")}
+                {...register('firstName')}
               />
               {errors.firstName && (
                 <label className="label">
@@ -125,9 +155,9 @@ const Signup = ({ onToggle }: SignupProps) => {
                 id="lastName"
                 placeholder="Enter your last name"
                 className={`input input-bordered w-full ${
-                  errors.lastName ? "input-error" : ""
+                  errors.lastName ? 'input-error' : ''
                 }`}
-                {...register("lastName")}
+                {...register('lastName')}
               />
               {errors.lastName && (
                 <label className="label">
@@ -147,9 +177,9 @@ const Signup = ({ onToggle }: SignupProps) => {
                 id="email"
                 placeholder="you@example.com"
                 className={`input input-bordered w-full ${
-                  errors.email ? "input-error" : ""
+                  errors.email ? 'input-error' : ''
                 }`}
-                {...register("email")}
+                {...register('email')}
               />
               {errors.email && (
                 <label className="label">
@@ -169,9 +199,9 @@ const Signup = ({ onToggle }: SignupProps) => {
                 id="password"
                 placeholder="Create a strong password"
                 className={`input input-bordered w-full ${
-                  errors.password ? "input-error" : ""
+                  errors.password ? 'input-error' : ''
                 }`}
-                {...register("password")}
+                {...register('password')}
               />
               {errors.password && (
                 <label className="label">
@@ -204,22 +234,21 @@ const Signup = ({ onToggle }: SignupProps) => {
             <button
               type="submit"
               className="btn btn-primary w-full"
-              disabled={status === "pending"}
+              disabled={status === 'pending'}
             >
-              {status === "pending" ? (
+              {status === 'pending' ? (
                 <>
                   <span className="loading loading-spinner"></span>
                   Creating Account...
                 </>
               ) : (
-                "Sign Up"
+                'Sign Up'
               )}
             </button>
 
             <div className="divider my-6">OR</div>
 
             <div className="text-center">
-              <p className="text-sm mb-4">Already have an account?</p>
               <button
                 onClick={onToggle}
                 type="button"
